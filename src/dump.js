@@ -17,77 +17,77 @@ function putStr(addr, str) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.writeUtf8String(addr, str);
+    return addr.writeUtf8String(str);
 }
 
 function getByteArr(addr, l) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.readByteArray(addr, l);
+    return addr.readByteArray(l);
 }
 
 function getU8(addr) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.readU8(addr);
+    return addr.readU8();
 }
 
 function putU8(addr, n) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.writeU8(addr, n);
+    return addr.writeU8(n);
 }
 
 function getU16(addr) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.readU16(addr);
+    return addr.readU16();
 }
 
 function putU16(addr, n) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.writeU16(addr, n);
+    return addr.writeU16(n);
 }
 
 function getU32(addr) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.readU32(addr);
+    return addr.readU32();
 }
 
 function putU32(addr, n) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.writeU32(addr, n);
+    return addr.writeU32(n);
 }
 
 function getU64(addr) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.readU64(addr);
+    return addr.readU64();
 }
 
 function putU64(addr, n) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.writeU64(addr, n);
+    return addr.writeU64(n);
 }
 
 function getPt(addr) {
     if (typeof addr == "number") {
         addr = ptr(addr);
     }
-    return Memory.readPointer(addr);
+    return addr.readPointer();
 }
 
 function putPt(addr, n) {
@@ -97,7 +97,7 @@ function putPt(addr, n) {
     if (typeof n == "number") {
         n = ptr(n);
     }
-    return Memory.writePointer(addr, n);
+    return addr.writePointer(n);
 }
 
 function malloc(size) {
@@ -119,7 +119,7 @@ function getExportFunction(type, name, ret, args) {
             }
             return funclet;
         } else if (type === "d") {
-            var datalet = Memory.readPointer(nptr);
+            var datalet = nptr.readPointer();
             if (typeof datalet === "undefined") {
                 console.log("parse error " + name);
                 return null;
@@ -129,14 +129,14 @@ function getExportFunction(type, name, ret, args) {
     }
 }
 
-NSSearchPathForDirectoriesInDomains = getExportFunction("f", "NSSearchPathForDirectoriesInDomains", "pointer", ["int", "int", "int"]);
-wrapper_open = getExportFunction("f", "open", "int", ["pointer", "int", "int"]);
-read = getExportFunction("f", "read", "int", ["int", "pointer", "int"]);
-write = getExportFunction("f", "write", "int", ["int", "pointer", "int"]);
-lseek = getExportFunction("f", "lseek", "int64", ["int", "int64", "int"]);
-close = getExportFunction("f", "close", "int", ["int"]);
-remove = getExportFunction("f", "remove", "int", ["pointer"]);
-access = getExportFunction("f", "access", "int", ["pointer", "int"]);
+var NSSearchPathForDirectoriesInDomains = getExportFunction("f", "NSSearchPathForDirectoriesInDomains", "pointer", ["int", "int", "int"]);
+var wrapper_open = getExportFunction("f", "open", "int", ["pointer", "int", "int"]);
+var read = getExportFunction("f", "read", "int", ["int", "pointer", "int"]);
+var write = getExportFunction("f", "write", "int", ["int", "pointer", "int"]);
+var lseek = getExportFunction("f", "lseek", "int64", ["int", "int64", "int"]);
+var close = getExportFunction("f", "close", "int", ["int"]);
+var remove = getExportFunction("f", "remove", "int", ["pointer"]);
+var access = getExportFunction("f", "access", "int", ["pointer", "int"]);
 
 function getDocumentDir() {
     var NSDocumentDirectory = 9;
@@ -316,10 +316,11 @@ function dumpModule(name) {
 
 function handleMessage(message) {
     //start dump
-    modules = getAllAppModules();
+    var modules = getAllAppModules();
     for (var i = 0; i  < modules.length; i++) {
-        console.log("start dump " + modules[i].path);
-        result = dumpModule(modules[i].path);
+        console.log('[*] Dumping ' + modules[i].path);
+        var result = dumpModule(modules[i].path);
+        console.log('[*] Sending dump result to client')
         send({ dump: result, path: modules[i].path});
     }
     send({app: ObjC.classes.NSBundle.mainBundle().bundlePath().toString()});
