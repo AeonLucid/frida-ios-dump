@@ -1,11 +1,9 @@
 import codecs
 import os
 import shutil
-import tempfile
 import threading
 from typing import Union
 
-import frida
 import paramiko
 from frida.core import Device, Session
 from paramiko import SSHClient, AuthenticationException
@@ -126,7 +124,7 @@ class Dumper:
             output_file = shutil.make_archive(os.path.join(os.getcwd(), ipa_filename), 'zip', payload_path)
 
             # Finished.
-            print('Finished dumping.')
+            print('Finished dumping to \'%s\'.' % output_file)
         finally:
             if os.path.exists(download_path):
                 shutil.rmtree(download_path)
