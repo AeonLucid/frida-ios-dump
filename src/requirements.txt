@@ -1,4 +1,0 @@
-frida==12.5.0
-scp==0.13.2
-paramiko==2.4.2
-cryptography==2.4.2
