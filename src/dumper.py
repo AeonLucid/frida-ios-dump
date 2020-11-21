@@ -2,6 +2,7 @@ import codecs
 import os
 import shutil
 import threading
+import plistlib
 from typing import Union
 
 import paramiko
@@ -25,7 +26,7 @@ class Dumper:
     _device: Device
     _session: Union[Session, None]
 
-    def __init__(self, device):
+    def __init__(self, device, output_directory=None):
         self._device = device
         self._ssh = SSHClient()
         self._ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -34,6 +35,7 @@ class Dumper:
         self._session = None
         self._lock = threading.Event()
         self._file_dict = dict()
+        self._output_directory = output_directory
 
     def connect_ssh(self, host, port, username, password):
         try:
@@ -107,11 +109,6 @@ class Dumper:
             except KeyboardInterrupt:
                 return False
 
-            # Create ipa file.
-            ipa_filename = self._display_name + '.ipa'
-
-            print('Creating ipa file of downloaded files.')
-
             app_name = self._file_dict['app']
 
             for key, value in self._file_dict.items():
@@ -121,7 +118,30 @@ class Dumper:
                 if key != 'app':
                     shutil.move(from_dir, to_dir)
 
-            output_file = shutil.make_archive(os.path.join(os.getcwd(), ipa_filename), 'zip', payload_path)
+            # Get app version.
+            app_version = 'UNKNOWN'
+
+            with open(os.path.join(payload_path, app_name, 'Info.plist'), 'rb') as fp:
+                pl = plistlib.load(fp)
+
+                if 'CFBundleShortVersionString' in pl:
+                    app_version = pl['CFBundleShortVersionString']
+
+            # Create ipa file.
+            print('Creating ipa file of downloaded files.')
+
+            ipa_filename = self._display_name + '_' + app_version + '.ipa'
+
+            output_ipa = os.path.join(os.getcwd(), ipa_filename)
+
+            if self._output_directory is not None:
+                output_ipa = os.path.join(self._output_directory, ipa_filename)
+
+            output_file = shutil.make_archive(output_ipa, 'zip', download_path)
+
+            # Remove zip extension.
+            os.rename(output_file, output_file[:-4])
+            output_file = output_file[:-4]
 
             # Finished.
             print('Finished dumping to \'%s\'.' % output_file)

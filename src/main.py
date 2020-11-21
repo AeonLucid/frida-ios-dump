@@ -22,6 +22,7 @@ def main():
     parser.add_argument('-password', dest='ssh_password', help='SSH Password')
     parser.add_argument('-list', dest='list_applications', action='store_true', help='List the installed apps')
     parser.add_argument('-dump', dest='dump_ipa', help='Bundle identifier or display name of the app to dump')
+    parser.add_argument('-out', dest='output_directory', help='Destination of the resulting ipa file')
 
     # Parse arguments.
     args = parser.parse_args()
@@ -47,7 +48,7 @@ def main():
     # Dump decrypted ipa from device.
     elif args.dump_ipa:
 
-        dumper = Dumper(device)
+        dumper = Dumper(device, args.output_directory)
 
         if not dumper.connect_ssh(args.ssh_host, args.ssh_port, args.ssh_username, args.ssh_password):
             return False
