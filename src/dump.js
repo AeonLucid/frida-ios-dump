@@ -373,7 +373,7 @@ function loadAllDynamicLibrary(app_path) {
 function handleMessage(message) {
     modules = getAllAppModules();
     var app_path = ObjC.classes.NSBundle.mainBundle().bundlePath();
-    loadAllDynamicLibrary(app_path);
+    // loadAllDynamicLibrary(app_path);
     // start dump
     modules = getAllAppModules();
     for (var i = 0; i  < modules.length; i++) {
